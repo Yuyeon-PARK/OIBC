@@ -1,10 +1,9 @@
 solar<-read.csv("SolarPV_Elec_Problem.csv",header=F);attach(solar)
-names(solar)<-c("date","pv") # ÇÏ·ç ÀüÃ¼ ¹ßÀü·® 96°³
+names(solar)<-c("date","pv") # í•˜ë£¨ ì „ì²´ ë°œì „ëŸ‰ 96ê°œ
 
-##¶óÀÌºê·¯¸® ¼³Ä¡##
 library(zoo); library(forecast); library(tseries); library(portes)
 
-##¿ø°è¿­ ½ÃµµÇ¥##
+##ì›ê³„ì—´ ì‹œë„í‘œ##
 PV<-solar[,2]; PV.df = data.frame(PV)
 
 row_sub = apply(PV.df, 1, function(row) all(row !=0 ))
@@ -14,118 +13,118 @@ solar.PV <- as.zoo(PV1)
 autoplot(PV1); summary(PV1)
 
 ###############################
-########1¿ù 31ÀÏ º¹¿ø°ª ÃßÁ¤########
+########1ì›” 31ì¼ ë³µì›ê°’ ì¶”ì •########
 ###############################
 
 jan<-as.data.frame(solar[17665:20544,2])
 
-lnPV<-log(jan) #ln º¯È¯°è¿­
+lnPV<-log(jan) #ln ë³€í™˜ê³„ì—´
 jan.ln<-cbind(jan, lnPV);colnames(jan.ln)<-c("PV","lnPV")
 
 row_jan = apply(jan.ln, 1, function(row) all(row !=0 ))
 jan0<-jan.ln[row_jan,] 
-PV11<-jan0$PV #1¿ù ¿ø°è¿­
-jan.ts<-ts(PV11, frequency=43) #0ÀÎ °ª Á¦¿Ü °üÃø·® ÀÏ 43°³
+PV11<-jan0$PV #1ì›” ì›ê³„ì—´
+jan.ts<-ts(PV11, frequency=43) #0ì¸ ê°’ ì œì™¸ ê´€ì¸¡ëŸ‰ ì¼ 43ê°œ
 autoplot(decompose(jan.ts))
 
-##1. Á¤»ó¼º °ËÁ¤##
+##1. ì •ìƒì„± ê²€ì •##
 adf.test(jan.ts, alternative = "stationary", k=0) 
 tsdiag(auto.arima(jan.ts))
 
-##2. ¸ðÇü ¹× Â÷¼ö ÃßÁ¤##
+##2. ëª¨í˜• ë° ì°¨ìˆ˜ ì¶”ì •##
 fit.jan.ts <- auto.arima(jan.ts,seasonal=T)
 
-#Æ÷Æ®¸ÇÅä¿ì °ËÁ¤: °ËÁ¤ °á°ú, ÃÖÀû ¸ðÇüÀº ¾Æ´Ô.
+#í¬íŠ¸ë§¨í† ìš° ê²€ì •: ê²€ì • ê²°ê³¼, ìµœì  ëª¨í˜•ì€ ì•„ë‹˜.
 portest(fit.jan.ts$residuals,lags=c(6,12,18,24,30,36),test="LjungBox")
 acf(fit.jan.ts$residuals)
 
-##3. ¿¹Ãø##
-forecast(fit.jan.ts,h = 43) #ÀÏÃâ(00:00-07:30)Àü 0*31°³, ÀÏ¸ô(6:30-11:45) ÈÄ 0*22°³ Æ÷ÇÔ=ÃÑ 96°³ ±¸°£
+##3. ì˜ˆì¸¡##
+forecast(fit.jan.ts,h = 43) #ì¼ì¶œ(00:00-07:30)ì „ 0*31ê°œ, ì¼ëª°(6:30-11:45) í›„ 0*22ê°œ í¬í•¨=ì´ 96ê°œ êµ¬ê°„
 plot(forecast(fit.jan.ts,h = 43))
 
 #################################
-########3¿ù 31ÀÏ º¹¿ø°ª ÃßÁ¤##########
+########3ì›” 31ì¼ ë³µì›ê°’ ì¶”ì •##########
 #################################
 
 mar<-as.data.frame(solar[23425:26304,2])
 
-lnPV<-log(mar) #lnº¯È¯°è¿­
+lnPV<-log(mar) #lnë³€í™˜ê³„ì—´
 mar.ln<-cbind(mar, lnPV);colnames(mar.ln)<-c("PV","lnPV")
 
 row_mar = apply(mar.ln, 1, function(row) all(row !=0 ))
 mar0<-mar.ln[row_mar,]
-PV3<-mar0$PV #3¿ù ¿ø°è¿­
-mar.ts<-ts(PV3, frequency=53) #0ÀÎ °ª Á¦¿Ü °üÃø·® ÀÏ 53°³
+PV3<-mar0$PV #3ì›” ì›ê³„ì—´
+mar.ts<-ts(PV3, frequency=53) #0ì¸ ê°’ ì œì™¸ ê´€ì¸¡ëŸ‰ ì¼ 53ê°œ
 autoplot(decompose(mar.ts))
 
-##1. Á¤»ó¼º °ËÁ¤##
+##1. ì •ìƒì„± ê²€ì •##
 adf.test(mar.ts, alternative = "stationary", k=0) 
 tsdiag(auto.arima(mar.ts))   
 
-##2. ¸ðÇü ¹× Â÷¼ö ÃßÁ¤##
+##2. ëª¨í˜• ë° ì°¨ìˆ˜ ì¶”ì •##
 fit.mar.ts <- auto.arima(mar.ts,seasonal=T)
 
-#Æ÷Æ®¸ÇÅä¿ì °ËÁ¤: °ËÁ¤ °á°ú, ÃÖÀû ¸ðÇüÀº ¾Æ´Ô.
+#í¬íŠ¸ë§¨í† ìš° ê²€ì •: ê²€ì • ê²°ê³¼, ìµœì  ëª¨í˜•ì€ ì•„ë‹˜.
 portest(fit.mar.ts$residuals,lags=c(6,12,18,24,30,36),test="LjungBox")
 acf(fit.mar.ts$residuals) 
 
-##3. ¿¹Ãø##
-forecast(fit.mar.ts,h = 53) #ÀÏÃâ(00:00-06:00)Àü 0*25°³, ÀÏ¸ô(7:30-11:45) ÈÄ 0*18°³ Æ÷ÇÔ=ÃÑ 96°³ ±¸°£
+##3. ì˜ˆì¸¡##
+forecast(fit.mar.ts,h = 53) #ì¼ì¶œ(00:00-06:00)ì „ 0*25ê°œ, ì¼ëª°(7:30-11:45) í›„ 0*18ê°œ í¬í•¨=ì´ 96ê°œ êµ¬ê°„
 plot(forecast(fit.mar.ts,h = 53))
 
 ###############################
-########5¿ù 31ÀÏ º¹¿ø°ª ÃßÁ¤########
+########5ì›” 31ì¼ ë³µì›ê°’ ì¶”ì •########
 ###############################
 
 may<-as.data.frame(solar[29281:32160,2])
 
-lnPV<-log(may) #ln º¯È¯°è¿­
+lnPV<-log(may) #ln ë³€í™˜ê³„ì—´
 may.ln<-cbind(may, lnPV);colnames(may.ln)<-c("PV","lnPV")
 
 row_may = apply(may.ln, 1, function(row) all(row !=0 ))
 may0<-may.ln[row_may,]
-PV5<-may0$PV #5¿ù ¿ø°è¿­
-may.ts<-ts(PV5, frequency=60) #0ÀÎ °ª Á¦¿Ü °üÃø·® ÀÏ 60°³
+PV5<-may0$PV #5ì›” ì›ê³„ì—´
+may.ts<-ts(PV5, frequency=60) #0ì¸ ê°’ ì œì™¸ ê´€ì¸¡ëŸ‰ ì¼ 60ê°œ
 autoplot(decompose(may.ts))
 
-##1. Á¤»ó¼º °ËÁ¤##
+##1. ì •ìƒì„± ê²€ì •##
 adf.test(may.ts, alternative = "stationary", k=0)
 tsdiag(auto.arima(may.ts))
 
-##2. ¸ðÇü ¹× Â÷¼ö ÃßÁ¤##
+##2. ëª¨í˜• ë° ì°¨ìˆ˜ ì¶”ì •##
 fit.may.ts <- auto.arima(may.ts,seasonal=T) #ARIMA(1,0,1)(2,1,0)
 
-#Æ÷Æ®¸ÇÅä¿ì °ËÁ¤: °ËÁ¤ °á°ú, ÃÖÀû ¸ðÇüÀº ¾Æ´Ô.
+#í¬íŠ¸ë§¨í† ìš° ê²€ì •: ê²€ì • ê²°ê³¼, ìµœì  ëª¨í˜•ì€ ì•„ë‹˜.
 portest(fit.may.ts$residuals,lags=c(6,12,18,24,30,36),test="LjungBox")
 acf(fit.may.ts$residuals) 
 
-##3. ¿¹Ãø##
-forecast(fit.may.ts,h = 60) #ÀÏÃâ(00:00-05:00)Àü 0*21°³, ÀÏ¸ô(8:15-11:45) ÈÄ 0*15°³ Æ÷ÇÔ=ÃÑ 96°³ ±¸°£
+##3. ì˜ˆì¸¡##
+forecast(fit.may.ts,h = 60) #ì¼ì¶œ(00:00-05:00)ì „ 0*21ê°œ, ì¼ëª°(8:15-11:45) í›„ 0*15ê°œ í¬í•¨=ì´ 96ê°œ êµ¬ê°„
 plot(forecast(fit.may.ts,h = 60))
 
 ###############################
-########7¿ù 31ÀÏ ¿¹Ãø°ª ÃßÁ¤########
+########7ì›” 31ì¼ ì˜ˆì¸¡ê°’ ì¶”ì •########
 ###############################
 solar7<-read.csv("Solar_PV_July.csv",header=F);attach(solar7)
 names(solar7)<-c("date","pv")
 
 PV7<-solar7[,2]; PV7.df = data.frame(PV7)
 
-july<-ts(PV7.df, frequency=96) #0À» Æ÷ÇÔÇÑ ÇÏ·ç ÀüÃ¼ °üÃø·®///#ÀÏÃâ(00:00-05:00)Àü 0*20°³, ÀÏ¸ô(8:30-11:45) ÈÄ 0*14°³ Æ÷ÇÔ=ÃÑ 62°³ 
+july<-ts(PV7.df, frequency=96) #0ì„ í¬í•¨í•œ í•˜ë£¨ ì „ì²´ ê´€ì¸¡ëŸ‰///#ì¼ì¶œ(00:00-05:00)ì „ 0*20ê°œ, ì¼ëª°(8:30-11:45) í›„ 0*14ê°œ í¬í•¨=ì´ 62ê°œ 
 plot(july, type="l"); summary(july)
 plot(decompose(july))
 
-##1.Á¤»ó¼º °ËÁ¤##
+##1.ì •ìƒì„± ê²€ì •##
 library(tseries); library(forecast)
 tsdiag(auto.arima(july));tsdiag(fit.arima)
 
-###2.Â÷¼ö ÃßÁ¤ ¹× ¿¹Ãø###
+###2.ì°¨ìˆ˜ ì¶”ì • ë° ì˜ˆì¸¡###
 fit.arima<-Arima(july, order=c(2,1,2),seasonal=list(order=c(0,1,0),period=96),method="ML")
 
-#Æ÷Æ®¸ÇÅä¿ì °ËÁ¤: °ËÁ¤ °á°ú, ÃÖÀû ¸ðÇüÀº ¾Æ´Ô.
+#í¬íŠ¸ë§¨í† ìš° ê²€ì •: ê²€ì • ê²°ê³¼, ìµœì  ëª¨í˜•ì€ ì•„ë‹˜.
 portest(fit.arima$residuals,lags=c(6,12,18,24,30,36),test="LjungBox")
 acf(fit.arima$residuals)
 
-##3.¿¹Ãø##
-fore<-as.data.frame(forecast(fit.arima, h=192)) #7¿ù30ÀÏ, 7¿ù31ÀÏ ¿¹Ãø
+##3.ì˜ˆì¸¡##
+fore<-as.data.frame(forecast(fit.arima, h=192)) #7ì›”30ì¼, 7ì›”31ì¼ ì˜ˆì¸¡
 plot(forecast(fit.arima, h=192))
